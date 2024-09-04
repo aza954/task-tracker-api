@@ -1,5 +1,6 @@
 package com.aza954.task_tracker_api.api.controllers;
 
+import com.aza954.task_tracker_api.api.controllers.helpers.ControllerHelper;
 import com.aza954.task_tracker_api.api.dto.ProjectDto;
 import com.aza954.task_tracker_api.api.exceptions.BadRequestException;
 import com.aza954.task_tracker_api.api.exceptions.NotFoundException;
@@ -20,10 +21,12 @@ import java.util.stream.Collectors;
 public class ProjectController {
     private final ProjectDtoFactory projectDtoFactory;
     private final ProjectRepository projectRepository;
+    private final ControllerHelper controllerHelper;
     @Autowired
-    public ProjectController(ProjectDtoFactory projectDtoFactory, ProjectRepository projectRepository) {
+    public ProjectController(ProjectDtoFactory projectDtoFactory, ProjectRepository projectRepository, ControllerHelper controllerHelper) {
         this.projectDtoFactory = projectDtoFactory;
         this.projectRepository = projectRepository;
+        this.controllerHelper = controllerHelper;
     }
 
     public static final String FETCH_PROJECT = "/api/projects";
@@ -70,8 +73,7 @@ public class ProjectController {
         if (name.trim().isEmpty()){
             throw  new BadRequestException("Имя не может быть пустым");
         }
-       ProjectEntity project = projectRepository.findById(project_id)
-               .orElseThrow(() -> new NotFoundException("Не найдено"));
+       ProjectEntity project = controllerHelper.projectFromId(project_id);
 
        projectRepository.findByName(name)
                .filter(anotherProject -> !Objects.equals(anotherProject.getId(),project_id))

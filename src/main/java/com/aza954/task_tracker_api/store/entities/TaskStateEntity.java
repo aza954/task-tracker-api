@@ -1,70 +1,50 @@
 package com.aza954.task_tracker_api.store.entities;
 
+import com.aza954.task_tracker_api.api.dto.TaskStateDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
+@Getter
+@Setter
 @Table(name = "task_state")
 public class TaskStateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(unique = true)
+
     private String name;
 
-    private Long ordinal;
+    @OneToOne
+    private TaskStateEntity leftTaskState;
+    @OneToOne
+    private TaskStateEntity rightTaskState;
+
+
 
     private Instant createdAt = Instant.now();
+
+    @ManyToOne
+    private ProjectEntity project;
 
 
     @OneToMany
     @JoinColumn(name = "task_state_id", referencedColumnName = "id")
     private List<TaskEntity> tasks = new ArrayList<>();
 
-    public Long getId() {
-        return id;
+    public Optional<TaskStateEntity> getLeftTaskStateEntity(){
+        return Optional.ofNullable(leftTaskState);
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getOrdinal() {
-        return ordinal;
-    }
-
-    public void setOrdinal(Long ordinal) {
-        this.ordinal = ordinal;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public List<TaskEntity> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<TaskEntity> tasks) {
-        this.tasks = tasks;
+    public Optional<TaskStateEntity> getRightTaskStateEntity(){
+        return Optional.ofNullable(rightTaskState);
     }
 }

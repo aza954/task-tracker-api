@@ -30,7 +30,7 @@ public class TaskStateEntity {
     private TaskStateEntity rightTaskState;
 
 
-
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
     @ManyToOne
@@ -47,4 +47,6 @@ public class TaskStateEntity {
     public Optional<TaskStateEntity> getRightTaskStateEntity(){
         return Optional.ofNullable(rightTaskState);
     }
+
+
 }

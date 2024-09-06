@@ -55,19 +55,24 @@ public class TaskStateController {
         projectEntity.getTaskStates().stream().map(TaskStateEntity::getName).filter(anotherTaskSateName -> anotherTaskSateName.equalsIgnoreCase(taskSateName)).findAny().ifPresent(it -> {
             throw new BadRequestException("Таска с этим именем уже есть");
         });
+        TaskStateEntity anotherTaskState = taskStateRepository.findTaskStateEntityByRightTaskStateIdIsNullAndProjectId(projectId)
+                .orElse(null);
         TaskStateEntity taskStateEntity = taskStateRepository
                 .saveAndFlush(
                         TaskStateEntity.builder()
-                                .name(taskSateName).project(projectRepository.findById(projectId)
-                                        .orElseThrow(() -> new BadRequestException("Нет проекта с таким id"))).
-                                build()
+                                .name(taskSateName)
+                                .project(projectEntity)
+
+                                .build()
                         );
-        TaskStateEntity anotherTaskState = taskStateRepository.findTaskStateEntityByRightTaskStateIdIsNullAndProjectId(projectId)
-                .orElse(null);
+        System.out.println(taskStateEntity.getLeftTaskState());
+
+        System.out.println(anotherTaskState + " another task");
         if (anotherTaskState != null){
             anotherTaskState.setRightTaskState(taskStateEntity);
             taskStateEntity.setLeftTaskState(anotherTaskState);
         }
+        System.out.println(taskStateEntity.getLeftTaskState());
         return taskStateDtoFactory.taskStateDto(taskStateEntity);
     }
 

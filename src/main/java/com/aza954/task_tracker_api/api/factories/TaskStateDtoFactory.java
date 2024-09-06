@@ -18,7 +18,8 @@ public class TaskStateDtoFactory {
     }
 
     public TaskStateDto taskStateDto(TaskStateEntity entity){
-        System.out.println(entity.getTasks());
+        System.out.println(entity.getLeftTaskState());
+        System.out.println(entity.getRightTaskState());
         List<TaskDto> taskDtos = null;
         if (entity.getTasks() != null){
             taskDtos = entity.getTasks().stream().map(taskDtoFactory::taskDto).collect(Collectors.toList());

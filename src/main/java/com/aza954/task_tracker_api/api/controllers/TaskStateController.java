@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -26,6 +28,7 @@ public class TaskStateController {
 
     public static final String GET_TASK_STATES = "/api/projects/{project_id}/task-states";
     public static final String CREATE_TASK_STATE = "/api/projects/{project_id}/task-states";
+    public static final String UPDATE_TASK_STATE = "/api/task-states/{task_state_id}";
     public static final String EDIT_PROJECT = "/api/projects/{project_id}";
     public static final String DELETE_PROJECT = "/api/projects/{project_id}";
 
@@ -36,6 +39,42 @@ public class TaskStateController {
         this.projectRepository = projectRepository;
     }
 
+
+
+    @PatchMapping(UPDATE_TASK_STATE)
+    public TaskStateDto updateTaskState(@PathVariable(name = "task_state_id") long taskStateId,
+                                        @RequestParam(name = "task_state_name") String taskSateName){
+//        Optional<TaskStateEntity> taskStateEntity = taskStateRepository.findById(taskStateId).orElse(null);
+        TaskStateEntity taskStateEntity = taskStateRepository.findById(taskStateId).orElseThrow(() -> {
+            throw new BadRequestException("такого нет");
+        });
+        if (taskSateName.trim().isEmpty()){
+            throw new BadRequestException("Не может юыть пустым");
+        }
+//        taskStateEntity.stream().filter(taskStateEntity1 -> taskStateEntity1.getName().equalsIgnoreCase(taskSateName)).findAny().ifPresent(it -> {
+//            throw new BadRequestException("Имя занято");
+//        });
+
+        taskStateRepository.findTaskStateEntityByProjectId(taskStateEntity
+                .getProject()
+                .getId())
+                .stream()
+                .filter(taskStateEntity1 -> taskStateEntity1.getName().equalsIgnoreCase(taskSateName))
+                .findAny()
+                .ifPresent(it -> {
+            throw new BadRequestException("Имя занято");
+        });
+
+        taskStateEntity.setName(taskSateName);
+        taskStateRepository.saveAndFlush(taskStateEntity);
+
+
+        return taskStateDtoFactory.taskStateDto(taskStateEntity);
+
+
+
+
+    }
 
     @GetMapping(GET_TASK_STATES)
     public List<TaskStateDto> getTaskState(@PathVariable(name = "project_id") long projectId){
